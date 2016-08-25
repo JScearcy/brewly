@@ -1,0 +1,9 @@
+[package]
+name = "server"
+version = "0.1.0"
+authors = ["JScearcy <jacobscearcy@gmail.com>"]
+
+[dependencies]
+iron = "*"
+router = "*"
+rustc-serialize = "*"
