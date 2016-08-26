@@ -1,28 +1,33 @@
 extern crate iron;
 extern crate router;
-extern crate rustc_serialize;
+extern crate staticfile;
+extern crate mount;
 
+mod routes;
+mod services;
+use std::fs;
+use std::path::{PathBuf, Path};
 use iron::prelude::*;
-use iron::status;
+use iron::typemap::Key;
 use router::Router;
-use rustc_serialize::json;
+use staticfile::Static;
+use mount::Mount;
+use routes::grains::{get_grains};
+// use services::sqlite::sqlite;
 
 fn main() {
+    let app_path_buf = PathBuf::from("./../app/src");
+    let app_path = fs::canonicalize(&app_path_buf).unwrap();
 
     let mut router = Router::new();
-    router.get("/", move |r: &mut Request| hello_world(r, "Hello World!"));
-    router.get("/:echo", move |r: &mut Request| echo(r));
+    router.get("/grains/:id", move |r: &mut Request| get_grains(r));
 
-    Iron::new(router).http("localhost:3000").unwrap();
-}
+    let mut mount = Mount::new();
+    mount.mount("/", Static::new(Path::new(app_path.to_str().unwrap())));
+    mount.mount("/api", router);
 
-fn hello_world(req: &mut Request, msg: &'static str) -> IronResult<Response> {
-    //let payload = json::encode(msg).unwrap();
-    println!("Main: {:?}", req);
-    Ok(Response::with((status::Ok, msg)))
-}
+    let mut chain = Chain::new(mount);
+    //chain.link(Write::<sqlite>::both(DatabaseConnection::in_memory()));
 
-fn echo(req: &mut Request) -> IronResult<Response> {
-    println!("Echo: {:?}", req);
-    Ok(Response::with((status::Ok)))
+    Iron::new(chain).http("localhost:3000").unwrap();
 }

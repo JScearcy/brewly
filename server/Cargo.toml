@@ -7,3 +7,10 @@ authors = ["JScearcy <jacobscearcy@gmail.com>"]
 iron = "*"
 router = "*"
 rustc-serialize = "*"
+staticfile = "*"
+persistent = "*"
+rust-sqlite = "*"
+
+[dependencies.mount]
+
+git = "https://github.com/iron/mount.git"
