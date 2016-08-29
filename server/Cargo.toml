@@ -9,7 +9,8 @@ router = "*"
 rustc-serialize = "*"
 staticfile = "*"
 persistent = "*"
-rust-sqlite = "*"
+rusqlite = "*"
+time = "*"
 
 [dependencies.mount]
 
