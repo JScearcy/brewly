@@ -2,14 +2,17 @@ extern crate iron;
 extern crate router;
 extern crate staticfile;
 extern crate mount;
+extern crate r2d2;
+extern crate r2d2_sqlite;
 extern crate rusqlite;
 extern crate persistent;
 
-mod routes;
+#[macro_use]
 mod services;
+mod routes;
 mod models;
 
-use std::fs;
+use std::{fs, thread};
 use std::path::{PathBuf, Path};
 use iron::prelude::*;
 use router::Router;
@@ -17,12 +20,19 @@ use staticfile::Static;
 use mount::Mount;
 use routes::grains::{get_grains};
 use rusqlite::Connection;
-use services::sqlite::{Sqlite, PersistentSqlite, SqliteActions};
-use persistent::Write;
+use services::sqlite::{SqliteDB};
+use r2d2_sqlite::SqliteConnectionManager;
+use persistent::Read as PRead;
 
 fn main() {
     let app_path_buf = PathBuf::from("./../app/src");
     let app_path = fs::canonicalize(&app_path_buf).unwrap();
+    let conn = get_sqlite_connection!(req);
+    // let db_path_bud = PathBuf::from("../ingredients");
+    // let db_path = fs::canonicalize(&db_path_bud).unwrap();
+    let config = r2d2::Config::default();
+    let manager = SqliteConnectionManager::new("../ingredients");
+    let pool = r2d2::Pool::new(config, manager).unwrap();
 
     let mut router = Router::new();
     router.get("/grains/:id", move |r: &mut Request| get_grains(r));
@@ -32,7 +42,7 @@ fn main() {
     mount.mount("/api", router);
 
     let mut chain = Chain::new(mount);
-    chain.link(Write::<PersistentSqlite>::both(Sqlite::new(Connection::open_in_memory().unwrap())));
+    chain.link(PRead::<SqliteDB>::both(pool));
 
     Iron::new(chain).http("localhost:3000").unwrap();
 }

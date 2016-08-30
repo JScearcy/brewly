@@ -1,9 +1,9 @@
 extern crate time;
-extern crate rusqlite;
 
-use rusqlite::types::{FromSql, sqlite3_stmt};
-use std::os::raw::c_int;
+use rusqlite::Error;
+use services;
 
+//#[derive(Serialize, Deserialize, Debug)]
 pub struct GrainModel {
         pub id: i32,
         pub name: String,
@@ -11,18 +11,21 @@ pub struct GrainModel {
         pub data: String,
 }
 
-impl FromSql for GrainModel {
-        unsafe fn column_result (stmt: *mut sqlite3_stmt, col: c_int) -> Result<Self, &str> {
-                let mut grn: GrainModel;
-                if stmt != null {
-                        grn = GrainModel {
-                                id: stmt.id,
-                                name: stmt.name,
-                                time_created: stmt.time_created,
-                                data: stmt.data
-                        };
+pub fn list_grains (conn: services::sqlite::SqliteConnection) -> Result<Vec<GrainModel>, Error> {
+        let mut stmt = try!(conn.prepare("SELECT id, name, time_created, data from grains"));
+        let rows = try!(stmt.query_map(&[], |row| {
+                GrainModel {
+                        id: row.get("id"),
+                        name: row.get("name"),
+                        time_created: row.get("time_created"),
+                        data: row.get("data"),
                 }
-                if grn != null { return Ok(grn)}
-                else { return Err("Not Found") }
+        }));
+        let mut grains: Vec<GrainModel> = Vec::new();
+
+        for row in rows {
+                grains.push(row.unwrap());
         }
+
+        Ok(grains)
 }
