@@ -7,7 +7,6 @@ extern crate r2d2_sqlite;
 extern crate rusqlite;
 extern crate persistent;
 
-#[macro_use]
 mod services;
 mod routes;
 mod models;
@@ -27,9 +26,6 @@ use persistent::Read as PRead;
 fn main() {
     let app_path_buf = PathBuf::from("./../app/src");
     let app_path = fs::canonicalize(&app_path_buf).unwrap();
-    let conn = get_sqlite_connection!(req);
-    // let db_path_bud = PathBuf::from("../ingredients");
-    // let db_path = fs::canonicalize(&db_path_bud).unwrap();
     let config = r2d2::Config::default();
     let manager = SqliteConnectionManager::new("../ingredients");
     let pool = r2d2::Pool::new(config, manager).unwrap();

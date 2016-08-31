@@ -3,6 +3,7 @@ extern crate iron;
 
 use iron::typemap::Key;
 use r2d2;
+
 use r2d2_sqlite::SqliteConnectionManager;
 
 pub type SqlitePool = r2d2::Pool<SqliteConnectionManager>;
@@ -12,22 +13,22 @@ pub struct SqliteDB;
 impl Key for SqliteDB { type Value = SqlitePool; }
 
 // Gets a connection from the pool from the given request or returns a 500
-#[macro_export]
-macro_rules! get_sqlite_connection {
-    ($req:expr) => (match $req.get::<persistent::Read<sqlite::SqliteDB>>() {
-        Ok(pool) => match pool.get() {
-            Ok(conn) => conn,
-            Err(_) => {
-                println!("Couldn't get a connection to Sqlite!");
-                return Ok(Response::with((status::InternalServerError)));
-            }
-        },
-        Err(_) => {
-            println!("Couldn't get the Sqlite pool from the request!");
-            return Ok(Response::with((status::InternalServerError)));
-        }
-    })
-}
+// #[macro_export]
+// macro_rules! get_sqlite_connection {
+//     ($req:expr) => (match $req.get::<persistent::Read<sqlite::SqliteDB>>() {
+//         Ok(pool) => match pool.get() {
+//             Ok(conn) => conn,
+//             Err(_) => {
+//                 println!("Couldn't get a connection to Sqlite!");
+//                 return Ok(Response::with((status::InternalServerError)));
+//             }
+//         },
+//         Err(_) => {
+//             println!("Couldn't get the Sqlite pool from the request!");
+//             return Ok(Response::with((status::InternalServerError)));
+//         }
+//     })
+// }
 
 pub fn get_pool(uri: &str) -> SqlitePool {
     let manager = SqliteConnectionManager::new(uri);

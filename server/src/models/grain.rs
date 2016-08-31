@@ -1,13 +1,14 @@
-extern crate time;
+extern crate rustc_serialize;
 
 use rusqlite::Error;
 use services;
+// use rustc_serialize::Encodable;
+// use rustc_serialize::Decodable;
 
-//#[derive(Serialize, Deserialize, Debug)]
+#[derive(RustcDecodable)]
 pub struct GrainModel {
         pub id: i32,
         pub name: String,
-        pub time_created: self::time::Timespec,
         pub data: String,
 }
 
@@ -17,7 +18,6 @@ pub fn list_grains (conn: services::sqlite::SqliteConnection) -> Result<Vec<Grai
                 GrainModel {
                         id: row.get("id"),
                         name: row.get("name"),
-                        time_created: row.get("time_created"),
                         data: row.get("data"),
                 }
         }));
