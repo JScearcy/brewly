@@ -4,7 +4,6 @@ extern crate rustc_serialize;
 
 use iron::prelude::*;
 use iron::status;
-use router::Router;
 use self::rustc_serialize::json;
 use services::sqlite::{SqliteDB};
 use persistent::Read;

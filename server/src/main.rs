@@ -11,14 +11,13 @@ mod services;
 mod routes;
 mod models;
 
-use std::{fs, thread};
+use std::{fs};
 use std::path::{PathBuf, Path};
 use iron::prelude::*;
 use router::Router;
 use staticfile::Static;
 use mount::Mount;
 use routes::grains::{get_grains};
-use rusqlite::Connection;
 use services::sqlite::{SqliteDB};
 use r2d2_sqlite::SqliteConnectionManager;
 use persistent::Read as PRead;
